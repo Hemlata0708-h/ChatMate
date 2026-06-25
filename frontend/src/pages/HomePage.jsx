@@ -37,7 +37,7 @@ const HomePage = () => {
     queryFn: getOutgoingFriendReqs,
   });
 
-  const { mutate: sendRequestMutation, isPending } = useMutation({
+   const { mutate: sendRequestMutation, isPending, variables: pendingUserId } = useMutation({
     mutationFn: sendFriendRequest,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] }),
@@ -113,9 +113,11 @@ const HomePage = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recommendedUsers.map((user) => {
-                const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
+               const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
+                const isThisButtonPending = isPending && pendingUserId === user._id;
 
                 return (
+
                   <div
                     key={user._id}
                     className="card bg-base-200 hover:shadow-lg transition-all duration-300 overflow-hidden border-0"
@@ -157,15 +159,17 @@ const HomePage = () => {
                         <p className="text-sm opacity-70">{user.bio}</p>
                       )}
 
-                      {/* Action button */}
+                                         {/* Action button */}
                       <button
                         className={`btn w-full mt-2 shadow-none ${
                           hasRequestBeenSent ? "btn-disabled" : "btn-primary "
                         }`}
                         onClick={() => sendRequestMutation(user._id)}
-                        disabled={hasRequestBeenSent || isPending}
+                        disabled={hasRequestBeenSent || isThisButtonPending}
                       >
-                        {hasRequestBeenSent ? (
+                        {isThisButtonPending ? (
+                          <span className="loading loading-spinner loading-xs" />
+                        ) : hasRequestBeenSent ? (
                           <>
                             <CheckCircleIcon className="size-4 mr-2" />
                             Request Sent
@@ -177,6 +181,7 @@ const HomePage = () => {
                           </>
                         )}
                       </button>
+
                     </div>
                   </div>
                 );
