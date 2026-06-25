@@ -19,7 +19,8 @@ const NotificationsPage = () => {
     queryFn: getFriendRequests,
   });
 
-  const { mutate: acceptRequestMutation, isPending } = useMutation({
+    const { mutate: acceptRequestMutation, isPending, variables: pendingRequestId } = useMutation({
+
     mutationFn: acceptRequest,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["friendRequests"] });
@@ -83,12 +84,16 @@ const NotificationsPage = () => {
                             </div>
                           </div>
 
-                          <button
+                                                    <button
                             className="btn btn-primary btn-sm"
                             onClick={() => acceptRequestMutation(request._id)}
-                            disabled={isPending}
+                            disabled={isPending && pendingRequestId === request._id}
                           >
-                            Accept
+                            {isPending && pendingRequestId === request._id ? (
+                              <span className="loading loading-spinner loading-xs" />
+                            ) : (
+                              "Accept"
+                            )}
                           </button>
                         </div>
                       </div>
